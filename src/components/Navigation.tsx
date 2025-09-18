@@ -6,15 +6,18 @@ import {
   GraduationCap, 
   Users, 
   Menu,
-  X
+  X,
+  LogOut
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import ecoMascot from "@/assets/eco-mascot.png";
 
 const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { signOut } = useAuth();
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -50,6 +53,14 @@ const Navigation = () => {
               </Link>
             </Button>
           ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => signOut()}
+            className="ml-2 text-muted-foreground hover:text-destructive"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -81,6 +92,17 @@ const Navigation = () => {
                 </Link>
               </Button>
             ))}
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-destructive"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                signOut();
+              }}
+            >
+              <LogOut className="w-4 h-4 mr-3" />
+              Sign Out
+            </Button>
           </div>
         </div>
       )}

@@ -17,10 +17,10 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
-              <Link to="/login">Login</Link>
+              <Link to="/auth">Login</Link>
             </Button>
             <Button variant="hero" size="lg" asChild>
-              <Link to="/dashboard">Get Started <ArrowRight className="w-4 h-4" /></Link>
+              <Link to="/auth">Get Started <ArrowRight className="w-4 h-4" /></Link>
             </Button>
           </div>
         </div>
@@ -43,7 +43,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button variant="hero" size="xl" asChild>
-                  <Link to="/dashboard">
+                  <Link to="/auth">
                     Start Your Journey <ArrowRight className="w-5 h-5" />
                   </Link>
                 </Button>
@@ -155,7 +155,7 @@ const Index = () => {
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">Ready to Make a Difference?</h2>
           <p className="text-xl mb-8 opacity-90">Join thousands of students building a sustainable future while advancing their careers</p>
           <Button variant="secondary" size="xl" asChild>
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Users className="w-5 h-5" />
               Join EcoVerse Today
             </Link>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Trophy, 
   Target, 
@@ -14,42 +15,106 @@ import {
   Zap,
   Star,
   Gift,
-  MapPin
+  MapPin,
+  Clock,
+  Upload,
+  Camera
 } from "lucide-react";
 import ecoMascot from "@/assets/eco-mascot.png";
+import { useUserData } from "@/hooks/useUserData";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  // Mock data - in real app this would come from API
+  const { user } = useAuth();
+  const { profile, tasks, completedTasks, userBadges, loading, completeTask } = useUserData();
+  const { toast } = useToast();
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [taskReflection, setTaskReflection] = useState('');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eco-mint"></div>
+      </div>
+    );
+  }
+
   const userStats = {
-    name: "Alex Green",
-    points: 2450,
-    level: 5,
-    streak: 12,
-    nextLevelPoints: 3000,
-    tasksCompleted: 24,
-    badgesEarned: 8,
-    rank: 15
+    name: profile?.display_name || user?.email?.split('@')[0] || 'Eco Warrior',
+    points: profile?.total_points || 0,
+    level: profile?.level || 1,
+    streak: profile?.current_streak || 0,
+    nextLevelPoints: (profile?.level || 1) * 1000,
+    tasksCompleted: profile?.tasks_completed || 0,
+    badgesEarned: profile?.badges_earned || 0,
+    rank: profile?.campus_rank || 0
   };
 
-  const todaysTasks = [
-    { id: 1, title: "Bring Your Own Water Bottle", points: 50, icon: Recycle, completed: false },
-    { id: 2, title: "Use Public Transport", points: 75, icon: MapPin, completed: true },
-    { id: 3, title: "Plant Care Check-in", points: 30, icon: Leaf, completed: false },
-    { id: 4, title: "Waste Sorting Challenge", points: 100, icon: Target, completed: false },
-  ];
+  // Get today's tasks that aren't completed
+  const completedTaskIds = new Set(completedTasks.map(ct => ct.task_id));
+  const dailyTasks = tasks
+    .filter(task => task.task_type === 'daily')
+    .slice(0, 4)
+    .map(task => ({
+      id: task.id,
+      title: task.title,
+      points: task.points,
+      icon: getIconComponent(task.icon_name),
+      completed: completedTaskIds.has(task.id),
+      description: task.description,
+      difficulty: task.difficulty,
+      category: task.category,
+    }));
 
-  const recentBadges = [
-    { name: "Tree Hugger", icon: "🌳", description: "Planted 10 trees" },
-    { name: "Recycle Champion", icon: "♻️", description: "Sorted 50kg waste" },
-    { name: "Green Streak", icon: "🔥", description: "10-day streak" },
-  ];
+  const recentBadges = userBadges.slice(0, 3).map(ub => ({
+    name: ub.badge.name,
+    icon: ub.badge.icon,
+    description: ub.badge.description,
+  }));
 
+  // Mock leaderboard data (you could fetch this from a view/function in the future)
   const leaderboard = [
     { name: "Sarah Chen", points: 3200, avatar: "👩‍🎓" },
     { name: "Mike Johnson", points: 2950, avatar: "👨‍🎓" },
-    { name: "You", points: 2450, avatar: "🌟" },
+    { name: userStats.name, points: userStats.points, avatar: "🌟" },
     { name: "Emma Davis", points: 2300, avatar: "👩‍🎓" },
-  ];
+  ].sort((a, b) => b.points - a.points);
+
+  const handleCompleteTask = async (task: any) => {
+    const { error } = await completeTask(task.id, taskReflection);
+    
+    if (error) {
+      toast({
+        title: "Error completing task",
+        description: error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Task completed! 🎉",
+        description: `You earned ${task.points} GreenPoints!`,
+      });
+      setSelectedTask(null);
+      setTaskReflection('');
+    }
+  };
+
+  function getIconComponent(iconName: string | null) {
+    const iconMap: { [key: string]: any } = {
+      Droplets: Recycle,
+      MapPin: MapPin,
+      Recycle: Recycle,
+      Leaf: Leaf,
+      Users: Users,
+      Bike: Target,
+      TreePine: Leaf,
+      Sun: Star,
+    };
+    return iconMap[iconName || 'Target'] || Target;
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8">
@@ -170,7 +235,7 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {todaysTasks.map((task) => (
+                {dailyTasks.map((task) => (
                   <div 
                     key={task.id} 
                     className="flex items-center justify-between p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors"
@@ -195,16 +260,82 @@ const Dashboard = () => {
                         Completed
                       </Badge>
                     ) : (
-                      <Button variant="eco" size="sm">
-                        Start
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="eco" 
+                            size="sm"
+                            onClick={() => setSelectedTask(task)}
+                          >
+                            Start
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-3">
+                              <task.icon className="w-5 h-5 text-eco-mint" />
+                              Complete Task
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="text-center p-4 bg-muted/50 rounded-lg">
+                              <h3 className="font-semibold text-lg mb-2">{task.title}</h3>
+                              <p className="text-muted-foreground mb-4 text-sm">{task.description}</p>
+                              <div className="flex items-center justify-center gap-4 text-sm">
+                                <div className="flex items-center gap-1">
+                                  <Trophy className="w-4 h-4 text-eco-mint" />
+                                  <span className="font-semibold">{task.points} points</span>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {task.difficulty}
+                                </Badge>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <label className="text-sm font-medium">
+                                Add a reflection (optional):
+                              </label>
+                              <textarea
+                                className="w-full p-3 rounded-lg border border-border bg-background resize-none"
+                                rows={3}
+                                placeholder="How did this task make you feel? What did you learn?"
+                                value={taskReflection}
+                                onChange={(e) => setTaskReflection(e.target.value)}
+                              />
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => {
+                                  setSelectedTask(null);
+                                  setTaskReflection('');
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                variant="success" 
+                                className="flex-1" 
+                                onClick={() => handleCompleteTask(task)}
+                              >
+                                Complete Task
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </div>
                 ))}
                 
-                <Button variant="outline" className="w-full mt-4">
-                  <Target className="w-4 h-4 mr-2" />
-                  View All Tasks
+                <Button variant="outline" className="w-full mt-4" asChild>
+                  <Link to="/tasks">
+                    <Target className="w-4 h-4 mr-2" />
+                    View All Tasks
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

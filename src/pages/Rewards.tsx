@@ -18,10 +18,43 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState } from "react";
+import { useUserData } from "@/hooks/useUserData";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Rewards = () => {
-  const [userPoints] = useState(2450);
+  const { user } = useAuth();
+  const { profile, rewards, loading, redeemReward } = useUserData();
+  const { toast } = useToast();
   const [selectedReward, setSelectedReward] = useState(null);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eco-mint"></div>
+      </div>
+    );
+  }
+
+  const userPoints = profile?.total_points || 0;
+
+  const handleRedeemReward = async (reward: any) => {
+    const { error, redemptionCode } = await redeemReward(reward.id);
+    
+    if (error) {
+      toast({
+        title: "Error redeeming reward",
+        description: error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Reward redeemed! 🎉",
+        description: `Your redemption code: ${redemptionCode}`,
+      });
+      setSelectedReward(null);
+    }
+  };
 
   const categories = [
     { id: 'all', name: 'All Rewards', icon: Gift },
