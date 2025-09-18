@@ -14,7 +14,297 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      badges: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
+      eco_tasks: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          difficulty: string | null
+          event_date: string | null
+          icon_name: string | null
+          id: string
+          is_featured: boolean | null
+          max_participants: number | null
+          points: number
+          task_type: string | null
+          time_estimate: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          difficulty?: string | null
+          event_date?: string | null
+          icon_name?: string | null
+          id?: string
+          is_featured?: boolean | null
+          max_participants?: number | null
+          points: number
+          task_type?: string | null
+          time_estimate?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          difficulty?: string | null
+          event_date?: string | null
+          icon_name?: string | null
+          id?: string
+          is_featured?: boolean | null
+          max_participants?: number | null
+          points?: number
+          task_type?: string | null
+          time_estimate?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          badges_earned: number | null
+          campus_rank: number | null
+          created_at: string | null
+          current_streak: number | null
+          display_name: string | null
+          id: string
+          level: number | null
+          tasks_completed: number | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          badges_earned?: number | null
+          campus_rank?: number | null
+          created_at?: string | null
+          current_streak?: number | null
+          display_name?: string | null
+          id?: string
+          level?: number | null
+          tasks_completed?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          badges_earned?: number | null
+          campus_rank?: number | null
+          created_at?: string | null
+          current_streak?: number | null
+          display_name?: string | null
+          id?: string
+          level?: number | null
+          tasks_completed?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rewards: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          id: string
+          image_emoji: string | null
+          is_popular: boolean | null
+          original_price: string | null
+          points_required: number
+          rating: number | null
+          reviews_count: number | null
+          stock: number | null
+          title: string
+          updated_at: string | null
+          validity_days: number | null
+          vendor: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          id?: string
+          image_emoji?: string | null
+          is_popular?: boolean | null
+          original_price?: string | null
+          points_required: number
+          rating?: number | null
+          reviews_count?: number | null
+          stock?: number | null
+          title: string
+          updated_at?: string | null
+          validity_days?: number | null
+          vendor: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          image_emoji?: string | null
+          is_popular?: boolean | null
+          original_price?: string | null
+          points_required?: number
+          rating?: number | null
+          reviews_count?: number | null
+          stock?: number | null
+          title?: string
+          updated_at?: string | null
+          validity_days?: number | null
+          vendor?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_reward_redemptions: {
+        Row: {
+          expires_at: string
+          id: string
+          is_used: boolean | null
+          points_spent: number
+          redeemed_at: string | null
+          redemption_code: string
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          expires_at: string
+          id?: string
+          is_used?: boolean | null
+          points_spent: number
+          redeemed_at?: string | null
+          redemption_code: string
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          is_used?: boolean | null
+          points_spent?: number
+          redeemed_at?: string | null
+          redemption_code?: string
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reward_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_task_completions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          points_earned: number
+          proof_image_url: string | null
+          reflection: string | null
+          task_id: string
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          points_earned: number
+          proof_image_url?: string | null
+          reflection?: string | null
+          task_id: string
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          points_earned?: number
+          proof_image_url?: string | null
+          reflection?: string | null
+          task_id?: string
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "eco_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
