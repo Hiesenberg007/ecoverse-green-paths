@@ -64,7 +64,7 @@ const Rewards = () => {
     { id: 'experiences', name: 'Experiences', icon: Ticket },
   ];
 
-  const rewards = [
+  const rewardCatalog = [
     {
       id: 1,
       title: "Free Coffee & Pastry",
@@ -376,7 +376,7 @@ const Rewards = () => {
           {/* Rewards Grid */}
           <div className="lg:col-span-3">
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {rewards.map(reward => (
+              {rewardCatalog.map(reward => (
                 <RewardCard key={reward.id} reward={reward} />
               ))}
             </div>
